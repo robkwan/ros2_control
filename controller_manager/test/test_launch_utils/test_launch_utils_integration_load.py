@@ -20,7 +20,7 @@ import launch_testing
 from launch_testing.actions import ReadyToTest
 
 import launch_ros.actions
-from launch.substitutions import PathSubstitution
+from launch.substitutions import FileContent, PathSubstitution
 from launch_ros.substitutions import FindPackageShare, FindPackagePrefix
 from launch.launch_context import LaunchContext
 
@@ -35,22 +35,12 @@ from controller_manager.launch_utils import generate_load_controller_launch_desc
 @pytest.mark.launch_test
 def generate_test_description():
 
-    # URDF path (pathlib version, no xacro)
-    urdf_subst = (
+    urdf = FileContent(
         PathSubstitution(FindPackageShare("ros2_control_test_assets"))
         / "urdf"
         / "test_hardware_components.urdf"
     )
-
-    context = LaunchContext()
-
-    urdf_path_str = urdf_subst.perform(context)
-
-    print(f"Resolved URDF Path: {urdf_path_str}")
-
-    with open(urdf_path_str) as infp:
-        robot_description_content = infp.read()
-    robot_description = {"robot_description": robot_description_content}
+    robot_description = {"robot_description": urdf}
 
     # Path to combined YAML
     robot_controllers = (
